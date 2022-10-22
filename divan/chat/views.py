@@ -1,19 +1,17 @@
-from email import message
 from rest_framework.views import APIView
 from django.http import HttpRequest, JsonResponse
 from rest_framework import status
 from rest_framework.response import Response
-from datetime import datetime
 from . import serializers
 from . import auth_firebase
 from . import token_process
-from .models import Conversation, Friend, Message, User, Country
+from .models import Conversation, Friend, Message, User
 
 
 class Login(APIView):
     def post(self, request: HttpRequest):
-        email = request.query_params.get('email')
-        password = request.query_params.get('password')
+        email = request.data.get('email')
+        password = request.data.get('password')
         try:
             token = auth_firebase.login(email, password)
         except:

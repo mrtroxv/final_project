@@ -1,14 +1,5 @@
 import pyrebase
-firebaseConfig = {
-    "apiKey": "AIzaSyBYiKRs-fIsA_-YmwWpSd7jRy9gVeUbbL0",
-    "authDomain": "divan-2e324.firebaseapp.com",
-    "projectId": "divan-2e324",
-    "storageBucket": "divan-2e324.appspot.com",
-    "messagingSenderId": "996229135049",
-    "appId": "1:996229135049:web:4419780bf7d9193b94ab18",
-    "measurementId": "G-EYEC03X8LF",
-    "databaseURL": ""
-}
+from .config import firebaseConfig
 
 firebase = pyrebase.initialize_app(firebaseConfig)
 auth = firebase.auth()
