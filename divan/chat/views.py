@@ -365,20 +365,18 @@ class ViewConversations(APIView):
 class ViewConversationMessage(APIView):
     @token_required
     def view_message(request: HttpRequest, user_id, conversation_id):
-        message_obj = Message.objects.filter()
+        message_obj = Message.objects.filter(conversation_id=conversation_id)
         conver_obj = Conversation.objects.get(id=conversation_id)
         data_of_conver = vars(conver_obj)
         res = []
         if data_of_conver.get('user1_id') == user_id or data_of_conver.get('user2_id') == user_id:
             for i in message_obj:
-                data = vars(i)
-                if data.get('conversation_id') == conversation_id:
-                    serializer = serializers.MessageSerializer(i)
-                    message_data = serializer.data
-                    sender_name = get_name_by_id.get_name(
-                        message_data.get("sender"))
-                    message_data["sender"] = sender_name
-                    res.append(message_data)
+                serializer = serializers.MessageSerializer(i)
+                message_data = serializer.data
+                sender_name = get_name_by_id.get_name(
+                    message_data.get("sender"))
+                message_data["sender"] = sender_name
+                res.append(message_data)
             return Response(res, status=status.HTTP_200_OK)
 
     def get(self, request: HttpRequest, user_id, conversation_id):
