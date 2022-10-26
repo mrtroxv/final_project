@@ -1,35 +1,41 @@
-from datetime import date, datetime
+from datetime import datetime
 from email.policy import default
 from django.db import models
 
 
-class Languge (models.Model):
+class language (models.Model):
+    def __str__(self) -> str:
+        return self.name
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=255)
 
 
 class Country(models.Model):
+    def __str__(self) -> str:
+        return self.name
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=255)
 
 
 class User(models.Model):
+    def __str__(self) -> str:
+        return self.name
     id = models.CharField(primary_key=True, max_length=255)
     email = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
-    nick_name = models.CharField(max_length=255)
-    native_languge = models.ForeignKey(
-        Languge, null=True, on_delete=models.CASCADE)
-    country = models.ForeignKey(Country, null=True, on_delete=models.CASCADE)
+    nick_name = models.CharField(max_length=255, null=True)
+    native_language = models.ForeignKey(
+        language, null=True, on_delete=models.SET_NULL)
+    country = models.ForeignKey(Country, null=True, on_delete=models.SET_NULL)
     profile_picture = models.CharField(max_length=255, null=True)
 
 
-class Friend(models.Model):
-    request_id = models.AutoField(primary_key=True, default=0)
-    user = models.ForeignKey(User, related_name='user',
-                             on_delete=models.CASCADE)
-    friend = models.ForeignKey(
-        User, related_name='friend', on_delete=models.CASCADE, default='null')
+class FriendShip(models.Model):
+    request_id = models.AutoField(primary_key=True)
+    user1 = models.ForeignKey(User, related_name='user_1',
+                              on_delete=models.CASCADE)
+    user2 = models.ForeignKey(
+        User, related_name='user_2', on_delete=models.CASCADE)
     status = models.IntegerField(default=0)
 
 
@@ -46,8 +52,8 @@ class Message(models.Model):
     conversation = models.ForeignKey(
         Conversation, on_delete=models.CASCADE)
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
-    message_send_date = models.DateTimeField(default=datetime.now())
-    message_tex = models.CharField(max_length=255)
+    send_date = models.DateTimeField(default=datetime.now())
+    text = models.CharField(max_length=255)
 
 
 # Create your models here.

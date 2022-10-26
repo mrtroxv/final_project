@@ -1,38 +1,36 @@
 from firebase_admin import credentials, auth
 import firebase_admin
+import os
 
 
-def initialize():
-    cred = credentials.Certificate(
-        "C:/Users/AHmad/Desktop/final_project/divan.json")
-    firebase_admin.initialize_app(cred)
+class TokenProcess():
+    def initialize(self):
+        file_path = ("../divan.json")
+        cred = credentials.Certificate(
+            file_path)
+        firebase_admin.initialize_app(cred)
 
+    def delete_app(self):
+        firebase_admin.delete_app(firebase_admin.get_app(name='[DEFAULT]'))
 
-def delete_app():
-    firebase_admin.delete_app(firebase_admin.get_app(name='[DEFAULT]'))
+    def __init__(self):
+        self.initialize()
 
+    def __del__(self):
+        self.delete_app()
 
-def is_valid_token(token_id):
-    initialize()
-    try:
-        auth.verify_id_token(token_id)
-    except:
-        delete_app()
-        return False
+    def is_valid_token(self, token_id):
+        try:
+            auth.verify_id_token(token_id)
+        except:
+            return False
 
-    delete_app()
-    return True
+        return True
 
+    def revoke_token(self, uid):
+        auth.revoke_refresh_tokens(uid)
 
-def revoke_token(uid):
-    initialize()
-    auth.revoke_refresh_tokens(uid)
-    delete_app()
-
-
-def get_user_id(email):
-    initialize()
-    user = auth.get_user_by_email(email)
-    uid = user.uid
-    delete_app()
-    return uid
+    def get_user_id(self, email):
+        user = auth.get_user_by_email(email)
+        uid = user.uid
+        return uid

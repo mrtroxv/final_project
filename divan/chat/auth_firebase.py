@@ -1,25 +1,29 @@
 import pyrebase
 from .config import firebaseConfig
-
-firebase = pyrebase.initialize_app(firebaseConfig)
-auth = firebase.auth()
+import jwt
 
 
-def refresh_token(refresh_token):
-    refresh = auth.refresh(refresh_token)
-    return refresh
+class FirebaseAuth:
+    firebase = pyrebase.initialize_app(firebaseConfig)
+    auth = firebase.auth()
 
+    def refresh_token(self, refresh_token):
+        new_token = self.auth.refresh(refresh_token)
+        return new_token
 
-def login(email, password):
-    token = {}
-    login = auth.sign_in_with_email_and_password(email, password)
-    token['token_id'] = login['idToken']
-    token['refresh_token'] = login['refreshToken']
-    return token
+    def login(self, email, password):
+        token = {}
+        login = self.auth.sign_in_with_email_and_password(email, password)
+        token['token_id'] = login['idToken']
+        token['refresh_token'] = login['refreshToken']
+        return token
 
+    def signup(self, email, password):
+        self.auth.create_user_with_email_and_password(email, password)
+        token = self.login(email, password)
+        return token
 
-def signup(email, password):
-    token = {}
-    auth.create_user_with_email_and_password(email, password)
-    token = login(email, password)
-    return token
+    def get_user_id_by_token(self, token_id):
+        decode = jwt.decode(token_id, options={"verify_signature": False})
+        uid = decode.get('user_id')
+        return uid
