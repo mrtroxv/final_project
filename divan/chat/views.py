@@ -4,10 +4,9 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from rest_framework import status
 from rest_framework.response import Response
 from .token_process import TokenProcess
-from . import get_name_by_id
+from .get_name_by_id import UserInformation
 from . import serializers
 from .auth_firebase import FirebaseAuth
-from . import token_process
 from .models import Conversation, FriendShip, Message, User
 
 
@@ -118,8 +117,9 @@ class Profile(APIView):
             return Response("the user id not found", status=status.HTTP_400_BAD_REQUEST)
         serializer = serializers.UserSerializer(user_obj)
         data = serializer.data
-        country_name = get_name_by_id.get_country_name(data)
-        language_name = get_name_by_id.native_languge_name(data)
+        user_info = UserInformation()
+        country_name = user_info.get_country_name(data)
+        language_name = user_info.get_native_languge_name(data)
         data["country"] = country_name
         data['native_language'] = language_name
         return Response(data, status=status.HTTP_200_OK)
@@ -178,9 +178,12 @@ class FriendRequestView(APIView):
 
             def req_dict_maker(data_s):
                 request_id = data_s.get("request_id")
-                user_name = get_name_by_id.user_name(data_s)
-                friend_name = get_name_by_id.friend_name(data_s)
-                statu = get_name_by_id.get_status(data_s)
+                user_info = UserInformation()
+                user_name = user_info.get_user1_name_from_friendship(
+                    data_s)
+                friend_name = user_info.get_user2_name_from_friendship(
+                    data_s)
+                statu = user_info.get_friend_request_status(data_s)
                 req_dict = {}
                 req_dict['request_id'] = request_id
                 req_dict['status'] = statu
@@ -269,13 +272,14 @@ class CreateCoversation(APIView):
 class ViewUsers(APIView):
     @token_required
     def view_user(request: HttpRequest, uid):
+        user_info = UserInformation()
         user_objs = User.objects.all()
         res = []
         for i in user_objs:
             serializer = serializers.UserSerializer(i)
             data = serializer.data
-            country_name = get_name_by_id.get_country_name(data)
-            language_name = get_name_by_id.native_languge_name(data)
+            country_name = user_info.get_country_name(data)
+            language_name = user_info.get_native_languge_name(data)
             data["country"] = country_name
             data['native_language'] = language_name
             res.append(data)
@@ -292,6 +296,7 @@ class ViewFriend(APIView):
     @token_required
     def view_friend(request: HttpRequest, user_id):
         res = []
+        user_info = UserInformation()
         filter = FriendShip.objects.filter(
             (Q(user1=user_id) | Q(user2=user_id)) & Q(status=2))
         for friend_ship in filter:
@@ -302,8 +307,8 @@ class ViewFriend(APIView):
                 user_obj = User.objects.get(id=friend_ship.get('user2_id'))
             serializer = serializers.UserSerializer(user_obj)
             data = serializer.data
-            country_name = get_name_by_id.get_country_name(data)
-            language_name = get_name_by_id.native_languge_name(data)
+            country_name = user_info.get_country_name(data)
+            language_name = user_info.get_native_languge_name(data)
             data["country"] = country_name
             data['native_language'] = language_name
             res.append(data)
@@ -343,6 +348,7 @@ class CreateMessage(APIView):
 class ViewConversations(APIView):
     @token_required
     def view_conversation(request: HttpRequest, user_id):
+        user_info = UserInformation()
         res = []
         conver_objs = Conversation.objects.filter(
             Q(user1=user_id) | Q(user2=user_id))
@@ -350,7 +356,7 @@ class ViewConversations(APIView):
             data = vars(i)
             serializer = serializers.ConversationSerializer(i)
             data = serializer.data
-            dict = get_name_by_id.user_name_dict(data)
+            dict = user_info.get_user_name_dict(data)
             data['user1'] = dict["user1"]
             data['user2'] = dict["user2"]
             res.append(data)
@@ -365,6 +371,7 @@ class ViewConversations(APIView):
 class ViewConversationMessage(APIView):
     @token_required
     def view_message(request: HttpRequest, user_id, conversation_id):
+        user_info = UserInformation()
         message_obj = Message.objects.filter(conversation_id=conversation_id)
         conver_obj = Conversation.objects.get(id=conversation_id)
         data_of_conver = vars(conver_obj)
@@ -373,7 +380,7 @@ class ViewConversationMessage(APIView):
             for i in message_obj:
                 serializer = serializers.MessageSerializer(i)
                 message_data = serializer.data
-                sender_name = get_name_by_id.get_name(
+                sender_name = user_info.get_name(
                     message_data.get("sender"))
                 message_data["sender"] = sender_name
                 res.append(message_data)

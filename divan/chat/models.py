@@ -3,7 +3,7 @@ from email.policy import default
 from django.db import models
 
 
-class language (models.Model):
+class Language (models.Model):
     def __str__(self) -> str:
         return self.name
     id = models.IntegerField(primary_key=True)
@@ -25,7 +25,7 @@ class User(models.Model):
     name = models.CharField(max_length=255)
     nick_name = models.CharField(max_length=255, null=True)
     native_language = models.ForeignKey(
-        language, null=True, on_delete=models.SET_NULL)
+        Language, null=True, on_delete=models.SET_NULL)
     country = models.ForeignKey(Country, null=True, on_delete=models.SET_NULL)
     profile_picture = models.CharField(max_length=255, null=True)
 

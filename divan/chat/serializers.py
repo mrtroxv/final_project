@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Conversation, Country, FriendShip, language, Message, User
+from .models import Conversation, Country, FriendShip, Language, Message, User
 
 
 class ConversationSerializer(serializers.ModelSerializer):
@@ -35,5 +35,5 @@ class MessageSerializer(serializers.ModelSerializer):
 
 class LanguageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = language
+        model = Language
         fields = '__all__'
