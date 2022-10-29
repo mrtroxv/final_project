@@ -1,0 +1,8 @@
+divan.json
+venv/
+divan/db.sqlite3
+divan/divan/__pycache__/
+divan/chat/__pycache__/
+divan/chat/migrations/__pycache__/
+divan/chat/config.py
+
